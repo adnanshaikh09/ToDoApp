@@ -18,4 +18,7 @@ A simple and modern Todo List application built using **React Native** and **Exp
   
   ```bash
   npm install -g expo-cli
+
+  npm install
+  
   expo start
