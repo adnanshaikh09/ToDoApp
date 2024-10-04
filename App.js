@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, FlatList, TextInput, Button, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // For the delete icon
+import { MaterialIcons } from '@expo/vector-icons'; // For the delete and edit icons
 
 const ToDoApp = () => {
   const [tasks, setTasks] = useState([]);
   const [taskTitle, setTaskTitle] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editedTaskTitle, setEditedTaskTitle] = useState('');
 
   // Function to add a task
   const addTask = () => {
-    if (!taskTitle.trim()) return; // Ensuring task title is not empty
+    if (!taskTitle.trim()) return; // Ensure task title is not empty
     const newTask = {
-      id: tasks.length + 1, 
-      title: taskTitle,    
-      status: false,        
+      id: tasks.length + 1,  // Unique id for each task
+      title: taskTitle,      // Title entered by the user
+      status: false,         // Status default to 'due/false'
     };
     setTasks([...tasks, newTask]);  // Add the new task to the list
     setTaskTitle('');  // Clear the input after task is added
@@ -32,13 +34,38 @@ const ToDoApp = () => {
     setTasks(updatedTasks);
   };
 
+  // Start editing the task
+  const startEditingTask = (id, title) => {
+    setEditingTaskId(id);
+    setEditedTaskTitle(title);
+  };
+
+  // Save the edited task
+  const saveEditedTask = (id) => {
+    const updatedTasks = tasks.map(task =>
+      task.id === id ? { ...task, title: editedTaskTitle } : task
+    );
+    setTasks(updatedTasks);
+    setEditingTaskId(null);
+    setEditedTaskTitle('');
+  };
+
   // Render individual task item
   const renderTask = ({ item }) => (
     <View style={styles.taskContainer}>
-      {/* Task title and status */}
-      <Text style={[styles.taskText, item.status ? styles.doneText : styles.dueText]}>
-        {item.title}
-      </Text>
+      {editingTaskId === item.id ? (
+        // Show input field when editing
+        <TextInput
+          style={styles.input}
+          value={editedTaskTitle}
+          onChangeText={setEditedTaskTitle}
+        />
+      ) : (
+        // Show task title when not editing
+        <Text style={[styles.taskText, item.status ? styles.doneText : styles.dueText]}>
+          {item.title}
+        </Text>
+      )}
       {/* Switch to toggle between 'due/false' and 'done/true' */}
       <Switch
         value={item.status} // true = 'done', false = 'due'
@@ -46,6 +73,16 @@ const ToDoApp = () => {
         trackColor={{ false: '#767577', true: '#81b0ff' }}
         thumbColor={item.status ? '#4CAF50' : '#f4f3f4'}
       />
+      {/* Edit or Save button */}
+      {editingTaskId === item.id ? (
+        <TouchableOpacity onPress={() => saveEditedTask(item.id)}>
+          <MaterialIcons name="save" size={24} color="#4CAF50" />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity onPress={() => startEditingTask(item.id, item.title)}>
+          <MaterialIcons name="edit" size={24} color="#FFA500" />
+        </TouchableOpacity>
+      )}
       {/* Delete button */}
       <TouchableOpacity onPress={() => deleteTask(item.id)}>
         <MaterialIcons name="delete" size={24} color="#FF6347" />
@@ -56,7 +93,7 @@ const ToDoApp = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* App Heading */}
-      <Text style={styles.heading}>Todo list</Text>
+      <Text style={styles.heading}>Todolist App</Text>
 
       {/* Input Section */}
       <View style={styles.inputContainer}>
@@ -79,7 +116,7 @@ const ToDoApp = () => {
       <FlatList
         data={tasks}
         renderItem={renderTask}
-        keyExtractor={item => item.id.toString()} 
+        keyExtractor={item => item.id.toString()} // Unique key for each task
       />
     </SafeAreaView>
   );
