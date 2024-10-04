@@ -7,17 +7,19 @@ const ToDoApp = () => {
   const [taskTitle, setTaskTitle] = useState('');
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editedTaskTitle, setEditedTaskTitle] = useState('');
+  const [taskCount, setTaskCount] = useState(0); // New state to track unique task IDs
 
   // Function to add a task
   const addTask = () => {
     if (!taskTitle.trim()) return; // Ensure task title is not empty
     const newTask = {
-      id: tasks.length + 1,  // Unique id for each task
+      id: taskCount + 1,  // Use taskCount for unique task ID
       title: taskTitle,      // Title entered by the user
       status: false,         // Status default to 'due/false'
     };
     setTasks([...tasks, newTask]);  // Add the new task to the list
     setTaskTitle('');  // Clear the input after task is added
+    setTaskCount(taskCount + 1); // Increment taskCount to ensure unique IDs
   };
 
   // Function to toggle task status
@@ -116,7 +118,7 @@ const ToDoApp = () => {
       <FlatList
         data={tasks}
         renderItem={renderTask}
-        keyExtractor={item => item.id.toString()} // Unique key for each task
+        keyExtractor={item => item.id.toString()} // Ensure each task has a unique key
       />
     </SafeAreaView>
   );
